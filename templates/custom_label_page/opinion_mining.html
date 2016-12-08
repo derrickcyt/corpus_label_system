@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>语料标注系统</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="/static/css/skins/square/blue.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/jumbotron.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="/static/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="http://cdn.bootcss.com/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">语料标注系统</a>
+        </div>
+        {#        <div id="navbar" class="navbar-collapse collapse">#}
+        {#          <form class="navbar-form navbar-right" role="form">#}
+        {#            <div class="form-group">#}
+        {#              <input type="text" placeholder="Email" class="form-control">#}
+        {#            </div>#}
+        {#            <div class="form-group">#}
+        {#              <input type="password" placeholder="Password" class="form-control">#}
+        {#            </div>#}
+        {#            <button type="submit" class="btn btn-success">Sign in</button>#}
+        {#          </form>#}
+        {#        </div><!--/.navbar-collapse -->#}
+    </div>
+</nav>
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+
+<div class="container">
+    <h1 class="page-header"><a href="/project/{{ project_info.project_id }}">{{ project_info.project_name }}项目</a></h1>
+    <!-- Example row of columns -->
+    <div class="row">
+        {#        <div class="col-md-4">#}
+        {#          <h2>久邦项目:输入法语料</h2>#}
+        {#          <p>标注包括显性、隐性评价搭配、aspect分类以及情感分类</p>#}
+        {#          <p><a class="btn btn-default" href="/project/xx" role="button">进入项目主页</a></p>#}
+        {#        </div>#}
+        <div class="col-md-8">
+            <h2>内容</h2>
+            <p>{{ ready_review.content }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <form class="form-inline" role="form" action="/label/submit" method="post">
+            <input type="hidden" name="submit_type" value="labeled">
+            <input type="hidden" name="review_id" value="{{ ready_review.review_id }}">
+            <div class="col-md-5 col-sm-5">
+                <h2>标注</h2>
+                <h3>显性搭配</h3>
+                <div id="explicit">
+                    <div id="explicit_result">
+                        <h4>1</h4>
+                        <div class="input-group">
+                            <span class="input-group-addon">Aspect表达</span>
+                            <input type="text" name="explicit_aspect" class="form-control" placeholder="评价对象">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">Opinion word</span>
+                            <input type="text" name="explicit_opinion" class="form-control" placeholder="评价词">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">ADV</span>
+                            <input type="text" name="explicit_adv" class="form-control" placeholder="副词、否定词，空格隔开">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">类别</span>
+                            <select name="explicit_category" class="form-control">
+                                {% for i, category in category_scheme %}
+                                    <option value="{{ i }}">{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">情感倾向</span>
+                            <input type="radio" name="explicit_polarity" value="pos" checked>
+                            正向
+                            <input type="radio" name="explicit_polarity" value="neu">
+                            中性
+                            <input type="radio" name="explicit_polarity" value="neg">
+                            负向
+                        </div>
+                        <button id="del_explicit" type="button" class="btn btn-default">-</button>
+                        <br>
+                    </div>
+                    <button id="add_explicit" type="button" class="btn btn-default">+</button>
+                </div>
+                <h3>隐性搭配</h3>
+                <div id="implicit">
+                    <div id="implicit_result">
+                        <h4>1</h4>
+                        <div class="input-group">
+                            <span class="input-group-addon">Aspect类别</span>
+                            <div class="input-group">
+                                <select name="implicit_category" class="form-control">
+                                    {% for i, category in category_scheme %}
+                                        <option value="{{ i }}">{{ category }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">Opinion word</span>
+                            <input type="text" name="implicit_opinion" class="form-control" placeholder="评价词">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">ADV</span>
+                            <input type="text" name="implicit_adv" class="form-control" placeholder="副词、否定词">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">情感倾向</span>
+                            <input type="radio" name="implicit_polarity" value="pos" checked>
+                            正向
+                            <input type="radio" name="implicit_polarity" value="neu">
+                            中性
+                            <input type="radio" name="implicit_polarity" value="neg">
+                            负向
+                        </div>
+                        <button id="del_implicit" type="button" class="btn btn-default">-</button>
+                    </div>
+                    <button id="add_implicit" type="button" class="btn btn-default">+</button>
+                </div>
+
+            </div>
+
+            <div class="col-md-5 col-sm-5">
+
+                <h3>Verb Expression</h3>
+                <div id="verb_expression">
+                    <div id="verb_expression_result">
+                        <h4>1</h4>
+                        <div class="input-group">
+                            <span class="input-group-addon">Aspect</span>
+                            <div class="input-group">
+                                <select name="verb_expression_category" class="form-control">
+                                    {% for i, category in category_scheme %}
+                                        <option value="{{ i }}">{{ category }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">verb expression</span>
+                            <input type="text" name="verb_expression_opinion" class="form-control" placeholder="动词短语">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon">情感倾向</span>
+                            <input type="radio" name="verb_expression_polarity" value="pos" checked>
+                            正向
+                            <input type="radio" name="verb_expression_polarity" value="neu">
+                            中性
+                            <input type="radio" name="verb_expression_polarity" value="neg">
+                            负向
+                        </div>
+                        <button id="del_verb_expression" type="button" class="btn btn-default">-</button>
+                    </div>
+                    <button id="add_verb_expression" type="button" class="btn btn-default">+</button>
+                </div>
+                <div class="btn-group">
+                    <div class="col-md-5 col-sm-5">
+                        <button type="button" id="neglect" class="btn btn-lg btn-warning">忽略</button>
+                    </div>
+                    <div class="col-md-5 col-sm-5">
+                        <button type="button" id="label_submit" class="btn btn-lg btn-primary">提交，下一条</button>
+                    </div>
+                </div>
+            <p>备注：问句、主观句暂不处理，只处理描述客观事实的句子。</p>
+            </div>
+        </form>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; Company 2014</p>
+    </footer>
+</div> <!-- /container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="/static/js/ie10-viewport-bug-workaround.js"></script>
+<script src="/static/js/icheck.min.js"></script>
+
+<script>
+    var explicit_current = 1
+    var implicit_current = 1
+    var verb_expression_current = 1
+
+    var explicit_html = $("#explicit_result").prop("outerHTML");
+    var implicit_html = $("#implicit_result").prop("outerHTML");
+    var verb_expression_html = $("#verb_expression_result").prop("outerHTML");
+
+
+    function del_explicit(e) {
+        e.parent().remove();
+        {#        explicit_current -= 1;#}
+    }
+
+    function del_implicit(e) {
+        e.parent().remove();
+        {#        implicit_current -= 1;#}
+    }
+
+    function del_verb_expression(e) {
+        e.parent().remove();
+        {#        implicit_current -= 1;#}
+    }
+
+    function refresh_radio() {
+        $('input').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%' // optional
+        });
+    }
+
+    function init() {
+        $('input').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%' // optional
+        });
+
+        $('#add_explicit').click(function () {
+            explicit_current += 1;
+            var reg = new RegExp("<h4>(\\d)</h4>", "gmi")
+            var radioReg = new RegExp("explicit_polarity", "gmi")
+            var html = explicit_html.replace(reg, "<h4>" + explicit_current + "</h4>")
+            {#                    .replace("explicit_aspect", "explicit_aspect" + explicit_current)#}
+                    .replace("explicit_result", "explicit_result" + explicit_current)
+                    {#                    .replace("explicit_opinion", "explicit_opinion" + explicit_current)#}
+                    .replace("del_explicit", "del_explicit" + explicit_current)
+                    {#                    .replace("explicit_category", "explicit_category" + explicit_current)#}
+                    .replace(radioReg, "explicit_polarity" + explicit_current);
+            $("#add_explicit").before(html);
+            $("#del_explicit" + explicit_current).click(function () {
+                del_explicit($(this));
+            });
+            refresh_radio();
+        });
+
+        $('#add_implicit').click(function () {
+            implicit_current += 1;
+            var reg = new RegExp("<h4>(\\d)</h4>", "gmi")
+            var radioReg = new RegExp("implicit_polarity", "gmi")
+            var html = implicit_html.replace(reg, "<h4>" + implicit_current + "</h4>")
+            {#                    .replace("implicit_aspect", "implicit_aspect" + implicit_current)#}
+            {#                    .replace("implicit_opinion", "implicit_opinion" + implicit_current)#}
+                    .replace("implicit_result", "implicit_result" + implicit_current)
+                    .replace("del_implicit", "del_implicit" + implicit_current)
+                    {#                    .replace("implicit_category", "implicit_category" + implicit_current)#}
+                    .replace(radioReg, "implicit_polarity" + implicit_current);
+            $("#add_implicit").before(html);
+            $("#del_implicit" + implicit_current).click(function () {
+                del_implicit($(this));
+            });
+            refresh_radio();
+        });
+
+        $('#add_verb_expression').click(function () {
+            verb_expression_current += 1;
+            var reg = new RegExp("<h4>(\\d)</h4>", "gmi")
+            var radioReg = new RegExp("verb_expression_polarity", "gmi")
+            var html = verb_expression_html.replace(reg, "<h4>" + verb_expression_current + "</h4>")
+                    .replace("verb_expression_result", "verb_expression_result" + verb_expression_current)
+                    .replace("del_verb_expression", "del_verb_expression" + verb_expression_current)
+                    .replace(radioReg, "verb_expression_polarity" + verb_expression_current);
+            $("#add_verb_expression").before(html);
+            $("#del_verb_expression" + verb_expression_current).click(function () {
+                del_verb_expression($(this));
+            });
+            refresh_radio();
+        });
+
+        $("#del_explicit").click(function () {
+            del_explicit($(this));
+        });
+
+        $("#del_implicit").click(function () {
+            del_implicit($(this));
+        });
+
+        $("#del_verb_expression").click(function () {
+            del_verb_expression($(this));
+        });
+
+        $("#neglect").click(function () {
+            $.post("/label/submit",
+                    {
+                        "submit_type": "neglect",
+                        "review_id": "{{ ready_review.review_id }}"
+                    },
+                    function (data) {
+                        location.href = "/project/{{ project_info.project_id }}/label"
+                    })
+                    .error(function () {
+                        alert("服务器异常");
+                    });
+        });
+
+        $("#label_submit").click(function () {
+            var result = []
+            var explicit_list = $("#explicit").children();
+            explicit_list.each(function () {
+                if ($(this).attr("id").indexOf("explicit_result") < 0)
+                    return;
+                var resultType = "explicit";
+                var aspect = getInputValue($(this), "explicit_aspect");
+                var opinion = getInputValue($(this), "explicit_opinion");
+                var adv = getInputValue($(this), "explicit_adv");
+                var category = getSelectInputValue($(this), "explicit_category");
+                var polarity = getRadioInputValue($(this), "explicit_polarity");
+                if (aspect == "" || opinion == "")
+                    return;
+                result.push({
+                    "type": resultType,
+                    "aspect": trim(aspect),
+                    "opinion": trim(opinion),
+                    "adv": trim(adv),
+                    "category": category,
+                    "polarity": polarity
+                });
+            });
+            var implicit_list = $("#implicit").children();
+            implicit_list.each(function () {
+                if ($(this).attr("id").indexOf("implicit_result") < 0)
+                    return;
+                var resultType = "implicit";
+                var opinion = getInputValue($(this), "implicit_opinion");
+                var adv = getInputValue($(this), "implicit_adv");
+                var category = getSelectInputValue($(this), "implicit_category");
+                var polarity = getRadioInputValue($(this), "implicit_polarity");
+                if (opinion == "")
+                    return;
+                result.push({
+                    "type": resultType,
+                    "opinion": trim(opinion),
+                    "adv": trim(adv),
+                    "category": category,
+                    "polarity": polarity
+                });
+            });
+            var verb_expression_list = $("#verb_expression").children();
+            verb_expression_list.each(function () {
+                if ($(this).attr("id").indexOf("verb_expression_result") < 0)
+                    return;
+                var resultType = "verb_expression";
+                var verb_expression = getInputValue($(this), "verb_expression_opinion");
+                var category = getSelectInputValue($(this), "verb_expression_category");
+                var polarity = getRadioInputValue($(this), "verb_expression_polarity");
+                if (verb_expression == "")
+                    return;
+                result.push({
+                    "type": resultType,
+                    "verb_expression": trim(verb_expression),
+                    "category": category,
+                    "polarity": polarity
+                });
+            });
+            if (result.length == 0) {
+                alert("没有标注。");
+            } else {
+                var jsonData = JSON.stringify(result);
+                console.log(jsonData)
+                $.post("/label/submit",
+                        {
+                            "submit_type": "labeled",
+                            "review_id": "{{ ready_review.review_id }}",
+                            "json_data": jsonData
+                        },
+                        function (data) {
+                            location.href = "/project/{{ project_info.project_id }}/label"
+                        })
+                        .error(function () {
+                            alert("服务器异常");
+                        });
+            }
+        });
+
+        function getInputValue(e, inputName) {
+            return e.find("input[name^='" + inputName + "']").val();
+        }
+
+        function getRadioInputValue(e, inputName) {
+            return e.find("input[name^='" + inputName + "']:checked").val();
+        }
+
+        function getSelectInputValue(e, inputName) {
+            return e.find("select[name^='" + inputName + "'] option:selected").val();
+        }
+
+    }
+
+    $(document).ready(function () {
+        init();
+    });
+
+    function trim(str){ //删除左右两端的空格
+　　     return str.replace(/(^\s*)|(\s*$)/g, "");
+　　 }
+
+
+</script>
+</body>
+</html>

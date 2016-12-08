@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>{{ project_info.project_name }}项目主页</title>
+
+    {#    <script src="/static/js/echarts.min.js"></script>#}
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/dashboard.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="/static/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="http://cdn.bootcss.com/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">语料标注系统</a>
+        </div>
+
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="col-sm-3 col-md-2 sidebar">
+        <ul class="nav nav-sidebar">
+            <li class="active"><a href="#">概况</a></li>
+            <li><a href="/project/{{ project_info.project_id }}/browser">已完成浏览</a></li>
+            {#            <li><a href="#">Export</a></li>#}
+        </ul>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h1 class="page-header">{{ project_info.project_name }}项目</h1>
+        <h2>概况</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <colgroup>
+                    <col class="col-xs-1">
+                    <col class="col-xs-7">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <td>
+                        语料总数
+                    </td>
+                    <td>{{ corpus_num }}</td>
+                </tr>
+                <tr>
+                    <td>
+                        已标注数量
+                    </td>
+                    <td>{{ labeled_num }}</td>
+                </tr>
+                <tr>
+                    <td>
+                        无效数量
+                    </td>
+                    <td>{{ useless_num }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+{#        <h2>各类统计</h2>#}
+{#        <div class="table-responsive">#}
+{#            <table class="table table-bordered table-striped">#}
+{#                <colgroup>#}
+{#                    <col class="col-xs-1">#}
+{#                    <col class="col-xs-7">#}
+{#                </colgroup>#}
+{#                <tbody>#}
+{#                <tr>#}
+{#                    <td>#}
+{#                        中文#}
+{#                    </td>#}
+{#                    <td>232/1000</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                    <td>#}
+{#                        英文#}
+{#                    </td>#}
+{#                    <td>123/1000</td>#}
+{#                </tr>#}
+{#                </tbody>#}
+{#            </table>#}
+{#        </div>#}
+        <div class="row placeholders">
+            <div class="col-sm-2 col-sm-offset-1 col-md-2 col-md-offset-1">
+                <a class="btn btn-danger btn" id="del_project" href="#" role="button">删除项目</a>
+                </div>
+            <div class="col-sm-2 col-sm-offset-5 col-md-2 col-md-offset-5">
+                <a class="btn btn-primary btn" href="/project/{{ project_info.project_id }}/label" role="button">继续标注></a>
+            </div>
+        </div>
+    </div>
+</div> <!-- /container -->
+
+
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="/static/js/ie10-viewport-bug-workaround.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#del_project").click(function(){
+            var is_del = confirm("确定删除？");
+            if(is_del){
+                $.post("/del/project",{"project_id":{{project_info.project_id}}},function(data){
+                    alert(data);
+                    location.href="/";
+                });
+            }
+        });
+    });
+
+
+</script>
+
+</body>
+</html>
